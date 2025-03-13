@@ -5,13 +5,13 @@ import {
   UserButton,
 } from "@clerk/clerk-react";
 import React from "react";
+import Auth from "./Auth";
+import { Link } from "react-router-dom";
 
 const Home = () => {
   return (
     <div>
-      <SignedOut>
-        <SignInButton mode="redirect" redirectUrl="/auth" />
-      </SignedOut>
+      <Link to="/auth">SignIn</Link>
 
       <SignedIn>
         <UserButton />
