@@ -4,6 +4,8 @@ import { useDispatch } from "react-redux";
 import { setUser, clearUser } from "../store/userSlice";
 import { useSaveUserDataMutation } from "../store/userApi";
 import "../assets/Auth.css";
+import EmployeeForm from "../components/EmployeeForm";
+import CompanyForm from "../components/CompanyForm";
 
 const Auth = () => {
   const { isSignedIn, user } = useUser();
@@ -12,10 +14,11 @@ const Auth = () => {
 
   const [step, setStep] = useState(1);
   const [userType, setUserType] = useState("");
+  const [errors, setErrors] = useState({});
 
   const [employeeData, setEmployeeData] = useState({
     education: "",
-    experience: 0,
+    experience: "",
     skills: "",
   });
 
@@ -45,10 +48,27 @@ const Auth = () => {
     } else {
       setCompanyData({ ...companyData, [e.target.name]: e.target.value });
     }
+
+    setErrors({ ...errors, [e.target.name]: "" });
+  };
+
+  const validateFields = () => {
+    const newErrors = {};
+    const requiredFields = userType === "employee" ? employeeData : companyData;
+
+    for (const field in requiredFields) {
+      if (!requiredFields[field].trim()) {
+        newErrors[field] = "This field is required.";
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
     if (!user) return;
+    if (!validateFields()) return;
 
     const userDetails = {
       clerkId: user.id,
@@ -106,81 +126,17 @@ const Auth = () => {
             </h3>
 
             {userType === "employee" ? (
-              <>
-                <div className="form-group">
-                  <label>Education:</label>
-                  <input
-                    type="text"
-                    name="education"
-                    value={employeeData.education}
-                    onChange={handleChange}
-                    placeholder="B.Tech"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Experience:</label>
-                  <input
-                    type="number"
-                    name="experience"
-                    value={employeeData.experience}
-                    onChange={handleChange}
-                    placeholder="0"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Skills:</label>
-                  <input
-                    type="text"
-                    name="skills"
-                    value={employeeData.skills}
-                    onChange={handleChange}
-                    placeholder="Skills"
-                    required
-                  />
-                </div>
-              </>
+              <EmployeeForm
+                employeeData={employeeData}
+                handleChange={handleChange}
+                errors={errors}
+              />
             ) : (
-              <>
-                <div className="form-group">
-                  <label>Company Name:</label>
-                  <input
-                    type="text"
-                    name="companyName"
-                    value={companyData.companyName}
-                    onChange={handleChange}
-                    placeholder="Company Name"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Industry:</label>
-                  <input
-                    type="text"
-                    name="industry"
-                    value={companyData.industry}
-                    onChange={handleChange}
-                    placeholder="Industry Type"
-                    required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label>Website:</label>
-                  <input
-                    type="text"
-                    name="website"
-                    value={companyData.website}
-                    onChange={handleChange}
-                    placeholder="Website URL"
-                    required
-                  />
-                </div>
-              </>
+              <CompanyForm
+                companyData={companyData}
+                handleChange={handleChange}
+                errors={errors}
+              />
             )}
 
             <button className="submit-btn" onClick={handleSubmit}>
